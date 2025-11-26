@@ -32,9 +32,29 @@ def create_enemy(enemy_type):
     Returns: Enemy dictionary
     Raises: InvalidTargetError if enemy_type not recognized
     """
-    # TODO: Implement enemy creation
-    # Return dictionary with: name, health, max_health, strength, magic, xp_reward, gold_reward
-    pass
+    if enemy_type == "goblin":
+      base_stats =  {"health": 50, "strength": 8, "magic": 2, "xp_reward": 25, "gold_reward": 10}
+    elif enemy_type == "orc":
+       base_stats =  {"health": 80, "strength": 12, "magic": 5, "xp_reward": 50, "gold_reward": 25}
+    elif enemy_type == "dragon":
+       base_stats =  {"health": 200, "strength": 25, "magic": 15, "xp_reward": 200, "gold_reward": 100}
+    else:
+        raise InvalidTargetError(f"Unknown enemy type: {enemy_type}")
+    enemy = {"name":"",
+             "enemy_type":enemy_type,
+             "health":base_stats["health"],
+             "max_health":base_stats["health"],
+             "strength":base_stats["strength"],
+             "magic":base_stats["magic"],
+             "xp_reward":base_stats["xp_reward"],
+             "gold_reward":base_stats["gold_reward"]}
+    if enemy_type == "goblin":
+        enemy["name"] = "Goblin"
+    elif enemy_type == "orc":
+        enemy["name"] = "Orc"
+    elif enemy_type == "dragon":
+        enemy["name"] = "Dragon"   
+    return enemy
 
 def get_random_enemy_for_level(character_level):
     """
