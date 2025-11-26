@@ -9,6 +9,7 @@ AI Usage: [Document any AI assistance used]
 This module handles character creation, loading, and saving.
 """
 
+from fileinput import filename
 import os
 from custom_exceptions import (
     InvalidCharacterClassError,
@@ -34,6 +35,39 @@ def create_character(name, character_class):
     
     Raises: InvalidCharacterClassError if class is not valid
     """
+    
+    if character_class not in ["Warrior","Mage","Rogue","Cleric"]:
+        raise InvalidCharacterClassError(f"Class not in valid list: {character_class}")
+    
+    if character_class == "Warrior":
+        base_stats = {"health":120,"strength":15,"magic":5}
+    elif character_class =="Mage":
+        base_stats = {"health":80,"strength":8,"magic":20}
+    elif character_class =="Rogue":
+        base_stats = {"health":90,"strength":12,"magic":10}
+    elif character_class == "Cleric":
+        base_stats ={"health":100, "strength":10,"magic":15}
+
+    character = {"name":name,
+    "class":character_class,
+     "level":1,
+     "health":base_stats["health"],
+     "max_health":base_stats["health"],
+     "strength":base_stats["strength"],
+     "magic":base_stats["magic"],
+     "experience":0,
+     "gold":100,
+     "inventory":[],
+     "active_quests":[],
+     "completed_quests":[]}
+    
+    
+    return character
+    
+    
+    
+    
+    
     # TODO: Implement character creation
     # Validate character_class first
     # Example base stats:
@@ -47,7 +81,7 @@ def create_character(name, character_class):
     # - inventory=[], active_quests=[], completed_quests=[]
     
     # Raise InvalidCharacterClassError if class not in valid list
-    pass
+    
 
 def save_character(character, save_directory="data/save_games"):
     """
@@ -72,11 +106,30 @@ def save_character(character, save_directory="data/save_games"):
     Returns: True if successful
     Raises: PermissionError, IOError (let them propagate or handle)
     """
+    if not os.path.exists(save_directory):
+        os.makedirs(save_directory)
+
+    filename= os.path.join(save_directory,f"{character['name']}_save.txt")
+    with open (filename,"w") as file:
+        file.write(f"NAME: {character['name']}\n")
+        file.write(f"CLASS: {character['class']}\n")
+        file.write(f"LEVEL: {character['level']}\n")    
+        file.write(f"HEALTH: {character['health']}\n")
+        file.write(f"MAX_HEALTH: {character['max_health']}\n")
+        file.write(f"STRENGTH: {character['strength']}\n")
+        file.write(f"MAGIC: {character['magic']}\n")
+        file.write(f"EXPERIENCE: {character['experience']}\n")
+        file.write(f"GOLD: {character['gold']}\n")
+        file.write(f"INVENTORY: {','.join(character['inventory'])}\n")
+        file.write(f"ACTIVE_QUESTS: {','.join(character['active_quests'])}\n")
+        file.write(f"COMPLETED_QUESTS: {','.join(character['completed_quests'])}\n")
+    return True 
+
     # TODO: Implement save functionality
     # Create save_directory if it doesn't exist
     # Handle any file I/O errors appropriately
     # Lists should be saved as comma-separated values
-    pass
+    
 
 def load_character(character_name, save_directory="data/save_games"):
     """
@@ -92,12 +145,54 @@ def load_character(character_name, save_directory="data/save_games"):
         SaveFileCorruptedError if file exists but can't be read
         InvalidSaveDataError if data format is wrong
     """
+    filename = os.path.join(save_directory,f"{character_name}_save.txt")
+
+    if not os.path.exists(filename):
+        raise CharacterNotFoundError(f"Save directory does not exist")
+    
+    try:
+        with open (filename,"r") as file:
+            lines = file.readlines()
+    except:
+        raise SaveFileCorruptedError(f"Could not read save file")
+    
+    character={}
+
+    for line in lines:
+        if ":" not in line:
+            raise InvalidSaveDataError(f"Format not valid")
+        
+        key,value = line.strip().split(":",1)
+        key = key.strip()
+        value = value.strip()
+
+        if key in ["NAME", "CLASS"]:
+            character[key.lower()] = value 
+    
+        elif key in ["LEVEL","HEALTH","MAX_HEALTH","STRENGTH","MAGIC","EXPERIENCE","GOLD"]:
+            if not value.isdigit():
+                raise InvalidSaveDataError(f"Expected Integer value for {key}")
+            character[key.lower()] = int(value)
+
+        elif key in ["INVENTORY","ACTIVE_QUESTS","COMPLETED_QUESTS"]:
+            if value == "":
+                character[key.lower()] = []
+            else:
+                character[key.lower()] = value.split(",")
+    
+        else:
+            raise InvalidSaveDataError(f"Unexpected key: {key}")
+    
+    return character
+    
+
+
+
     # TODO: Implement load functionality
     # Check if file exists → CharacterNotFoundError
     # Try to read file → SaveFileCorruptedError
     # Validate data format → InvalidSaveDataError
     # Parse comma-separated lists back into Python lists
-    pass
 
 def list_saved_characters(save_directory="data/save_games"):
     """
@@ -105,10 +200,22 @@ def list_saved_characters(save_directory="data/save_games"):
     
     Returns: List of character names (without _save.txt extension)
     """
+    if not os.path.exists(save_directory):
+        return []
+    
+    files = os.listdir(save_directory)
+
+    saved_characters = []
+
+    for filename in files:
+        if filename.endswith("_save.txt"):
+            name = filename.replace("_save.txt","")
+            saved_characters.append(name)
+    return saved_characters
     # TODO: Implement this function
     # Return empty list if directory doesn't exist
     # Extract character names from filenames
-    pass
+    
 
 def delete_character(character_name, save_directory="data/save_games"):
     """
@@ -117,9 +224,20 @@ def delete_character(character_name, save_directory="data/save_games"):
     Returns: True if deleted successfully
     Raises: CharacterNotFoundError if character doesn't exist
     """
+    if not os.path.exists(save_directory):
+        raise CharacterNotFoundError(f"Character does not exist")
+    
+    filepath = os.path.join(save_directory,f"{character_name}_save.txt")
+
+    if not os.path.exists(filepath):
+        raise CharacterNotFoundError(f"Character does not exist")
+    
+    os.remove(filepath)
+    return True
+   
     # TODO: Implement character deletion
     # Verify file exists before attempting deletion
-    pass
+    
 
 # ============================================================================
 # CHARACTER OPERATIONS
@@ -139,12 +257,29 @@ def gain_experience(character, xp_amount):
     
     Raises: CharacterDeadError if character health is 0
     """
+
+    if character["health"] ==0:
+        raise CharacterDeadError("Character is dead and cannot gain experience")
+    
+    character["experience"] += xp_amount
+    level_up_xp = character["level"] * 100
+    
+    while character["experience"] >= level_up_xp:
+        character["experience"] -= level_up_xp
+        character["level"] += 1
+        character["max_health"] += 10
+        character["strength"] += 2
+        character["magic"] += 2
+        character["health"] = character["max_health"]
+        level_up_xp = character["level"] * 100
+
+    return character
     # TODO: Implement experience gain and leveling
     # Check if character is dead first
     # Add experience
     # Check for level up (can level up multiple times)
     # Update stats on level up
-    pass
+    
 
 def add_gold(character, amount):
     """
@@ -157,10 +292,15 @@ def add_gold(character, amount):
     Returns: New gold total
     Raises: ValueError if result would be negative
     """
+    new_gold = character["gold"] + amount
+    if new_gold < 0:
+        raise ValueError("Gold cannot be negative")
+    character["gold"] = new_gold
+    return character["gold"]
     # TODO: Implement gold management
     # Check that result won't be negative
     # Update character's gold
-    pass
+
 
 def heal_character(character, amount):
     """
@@ -170,19 +310,29 @@ def heal_character(character, amount):
     
     Returns: Actual amount healed
     """
+    missing_health = character["max_health"] - character["health"]
+    actual_heal = min(amount, missing_health)
+    character["health"] += actual_heal
+    return actual_heal
+    
     # TODO: Implement healing
     # Calculate actual healing (don't exceed max_health)
     # Update character health
-    pass
+    
 
 def is_character_dead(character):
+    
     """
     Check if character's health is 0 or below
     
     Returns: True if dead, False if alive
     """
+    if character["health"] <= 0:
+        return True 
+    else:
+        return False
     # TODO: Implement death check
-    pass
+    
 
 def revive_character(character):
     """
@@ -190,9 +340,14 @@ def revive_character(character):
     
     Returns: True if revived
     """
+    if character["health"] > 0:
+        return False 
+    
+    character["health"] = character["max_health"]//2
+    return True 
     # TODO: Implement revival
     # Restore health to half of max_health
-    pass
+
 
 # ============================================================================
 # VALIDATION
@@ -209,11 +364,30 @@ def validate_character_data(character):
     Returns: True if valid
     Raises: InvalidSaveDataError if missing fields or invalid types
     """
+    required_keys = ["name", "class", "level", "health", "max_health", "strength", "magic", "experience", "gold", "inventory","active_quests", "completed_quests"]
+    numeric_keys = ["level", "health", "max_health", "strength", "magic", "experience", "gold"]
+    list_keys = ["inventory", "active_quests", "completed_quests"]
+    
+    
+    for key in required_keys:
+        if key not in character:
+            raise InvalidSaveDataError(f"Missing a required key: {key}")
+        
+
+    for key in numeric_keys:
+        if not isinstance(character[key], int):
+            raise InvalidSaveDataError(f"Expected integer for key: {key}")
+        
+    for key in list_keys:
+        if not isinstance(character[key], list):
+            raise InvalidSaveDataError(f"Expected list for key: {key}")
+        
+    return True
     # TODO: Implement validation
     # Check all required keys exist
     # Check that numeric values are numbers
     # Check that lists are actually lists
-    pass
+    
 
 # ============================================================================
 # TESTING
