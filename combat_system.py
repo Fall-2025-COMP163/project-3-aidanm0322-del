@@ -56,6 +56,10 @@ def create_enemy(enemy_type):
         enemy["name"] = "Dragon"   
     return enemy
 
+    # TODO: Implement enemy creation
+    # Return dictionary with: name, health, max_health, strength, magic, xp_reward, gold_reward
+    
+
 def get_random_enemy_for_level(character_level):
     """
     Get an appropriate enemy for character's level
@@ -66,10 +70,24 @@ def get_random_enemy_for_level(character_level):
     
     Returns: Enemy dictionary
     """
+    if character_level <= 2:
+        enemy = create_enemy("goblin")
+    elif 3<= character_level <=5:
+        enemy = create_enemy("orc")
+    else:
+       enemy = create_enemy("dragon")
+
+    return enemy
+
+    
+    
+
+
+
     # TODO: Implement level-appropriate enemy selection
     # Use if/elif/else to select enemy type
     # Call create_enemy with appropriate type
-    pass
+    
 
 # ============================================================================
 # COMBAT SYSTEM
@@ -84,11 +102,19 @@ class SimpleBattle:
     
     def __init__(self, character, enemy):
         """Initialize battle with character and enemy"""
+        self.character = character
+        self.enemy = enemy
+        self.combat_active = True
+        self.turn_counter = 0
+
+    
+
+
         # TODO: Implement initialization
         # Store character and enemy
         # Set combat_active flag
         # Initialize turn counter
-        pass
+        
     
     def start_battle(self):
         """
@@ -99,11 +125,25 @@ class SimpleBattle:
         
         Raises: CharacterDeadError if character is already dead
         """
+        if self.character['health'] <= 0:
+            raise CharacterDeadError("Character is already dead and cannot fight")
+       
+        while self.combat_active:
+            self.player_turn()
+            if self.enemy['health'] <= 0:
+                self.combat_active = False
+                rewards = get_victory_rewards(self.enemy)
+                return {'winner': 'player', 'xp_gained': rewards['xp'], 'gold_gained': rewards['gold']}
+            
+            self.enemy_turn()
+            if self.character['health'] <= 0:
+                self.combat_active = False
+                raise CharacterDeadError("Character has died in battle")
         # TODO: Implement battle loop
         # Check character isn't dead
         # Loop until someone dies
         # Award XP and gold if player wins
-        pass
+        
     
     def player_turn(self):
         """
