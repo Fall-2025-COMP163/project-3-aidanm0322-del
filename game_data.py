@@ -36,12 +36,41 @@ def load_quests(filename="data/quests.txt"):
     Returns: Dictionary of quests {quest_id: quest_data_dict}
     Raises: MissingDataFileError, InvalidDataFormatError, CorruptedDataError
     """
+    try:
+        with open(filename, "r") as file:
+            lines = file.readlines()
+    except FileNotFoundError:
+        raise MissingDataFileError(f"Data file not found: {filename}")
+    except Exception:
+        raise CorruptedDataError(f"Error reading data file.")
+    
+    quest = {}
+    current_block = []
+
+    for line in lines:
+        Line = line.strip()
+        if Line == "":
+            if current_block:
+                quest_data = parse_quest_block(current_block)
+                quest_id = quest_data["quest_id"]
+                quest[quest_id] = quest_data
+                current_block = []
+        else:
+            current_block.append(Line)
+
+        if current_block:
+            quest_data = parse_quest_block(current_block)
+            quest_id = quest_data["quest_id"]
+            quest[quest_id] = quest_data
+        
+        return quest 
+
     # TODO: Implement this function
     # Must handle:
     # - FileNotFoundError → raise MissingDataFileError
     # - Invalid format → raise InvalidDataFormatError
     # - Corrupted/unreadable data → raise CorruptedDataError
-    pass
+    
 
 def load_items(filename="data/items.txt"):
     """
@@ -58,9 +87,39 @@ def load_items(filename="data/items.txt"):
     Returns: Dictionary of items {item_id: item_data_dict}
     Raises: MissingDataFileError, InvalidDataFormatError, CorruptedDataError
     """
+
+    try:
+        with open(filename, "r") as file:
+            lines = file.readlines()
+    except FileNotFoundError:
+        raise MissingDataFileError(f"Data file not found: {filename}")
+    except Exception:
+        raise CorruptedDataError(f"Error reading data file.")
+    
+    items= {}
+    current_block = []
+
+    for line in lines: 
+        stripped_line=line.strip()
+        if stripped_line =="":
+            if current_block:
+                item_data = parse_item_block(current_block)
+                item_id = item_data["item_id"]
+                items[item_id] = item_data
+                current_block = []
+        else:
+            current_block.append(stripped_line)
+
+    if current_block:
+        item_dict = parse_item_block(current_block)
+        validate_item_data(item_dict)
+        items[item_dict["item_id"]] = item_dict
+    
+    return items
+
     # TODO: Implement this function
     # Must handle same exceptions as load_quests
-    pass
+    
 
 def validate_quest_data(quest_dict):
     """
