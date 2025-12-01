@@ -284,28 +284,32 @@ def parse_item_block(lines):
     Raises: InvalidDataFormatError if parsing fails
     """
     item = {}
-
-    for line in lines:
-        if ":" not in line:
-            raise InvalidDataFormatError(f"Item dosent have : in lines")
-        
-        key, value = line.split(":", 1)
-        
-        key = key.strip().lower()
-        value = value.strip()
-
-        item[key] = value
-
     try:
-        item["cost"] = int(item["cost"])
-    except Exception:
-        raise InvalidDataFormatError("Item cost must be an integer.")
-    
-    
-    return item
+        for line in lines:
+            if ":" not in line:
+                raise InvalidDataFormatError(f"Item dosent have : in lines")
+            key, value = line.split(":", 1)
+            key = key.strip().lower()
+            value = value.strip()
 
-    # TODO: Implement parsing logic
+            if key == "cost":
+                item[key] = int(value)
+            else:
+                item[key] = value
     
+        if "item_id" not in item:
+            raise InvalidDataFormatError("Item missing item_id field.")
+        
+        validate_item_data(item)
+
+        return item
+    
+    except ValueError:
+        raise InvalidDataFormatError("Item fields must be integers where applicable.")
+    except Exception as e:
+        raise InvalidDataFormatError(f"Error parsing item: {e}")
+        
+
 
 # ============================================================================
 # TESTING
