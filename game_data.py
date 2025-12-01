@@ -131,10 +131,26 @@ def validate_quest_data(quest_dict):
     Returns: True if valid
     Raises: InvalidDataFormatError if missing required fields
     """
+    required_fields = ["quest_id", 
+                       "title", 
+                       "description", 
+                       "reward_xp", 
+                       "reward_gold", 
+                       "required_level", 
+                       "prerequisite"]
+    for field in required_fields:
+        if field not in quest_dict:
+            raise InvalidDataFormatError(f"Missing required field: {field}")
+        
+    number_fields = ["reward_xp", "reward_gold", "required_level"]
+    for field in number_fields:
+        if not isinstance(quest_dict[field], int):
+            raise InvalidDataFormatError(f"Field {field} must be an integer")
+    return True
     # TODO: Implement validation
     # Check that all required keys exist
     # Check that numeric values are actually numbers
-    pass
+    
 
 def validate_item_data(item_dict):
     """
@@ -147,18 +163,70 @@ def validate_item_data(item_dict):
     Raises: InvalidDataFormatError if missing required fields or invalid type
     """
     # TODO: Implement validation
-    pass
+    # fields can only be item_id, name, type, effect, cost, description
+    requried_fields = ["item_id", "name", "type", "effect", "cost", "description"]
+    for field in requried_fields:
+        if field not in item_dict:
+            raise InvalidDataFormatError(f"Missing required field: {field}")
+    
+    #Types can only be weapon, armor, or consumable
+    valid_types = ["weapon", "armor", "consumable"]
+    if item_dict["type"] not in valid_types:
+        raise InvalidDataFormatError(f"Invalid item type: {item_dict['type']}")
+        
+    #Cost has to be an interger to work propperly 
+
+    if not isinstance(item_dict["cost"], int):
+        raise InvalidDataFormatError("Field cost must be an integer")   
+    
+    # Effect has to be in the correct format stat_name:value
+    if ":" not in item_dict["effect"]:
+        raise InvalidDataFormatError("Field effect must be in the format stat_name:value")
+
+    return True
+
 
 def create_default_data_files():
     """
     Create default data files if they don't exist
     This helps with initial setup and testing
     """
+    #Createing data file directory if it does not exist
+    if not os.path.exists("data"):
+        os.makedirs("data")
+
+    if not os.path.exists("data/quests.txt"):
+        try: 
+            with open("data/quests.txt", "w") as file:
+                file.write("QUEST_ID:first_quest\n")
+                file.write("TITLE:First Quest\n")
+                file.write("DESCRIPTION:This is your first quest.\n")
+                file.write("REWARD_XP:100\n")
+                file.write("REWARD_GOLD:50\n")
+                file.write("REQUIRED_LEVEL:1\n")
+                file.write("PREREQUISITE:NONE\n")
+        except Exception:
+            raise CorruptedDataError("Cannot create quests.txt.")
+        
+        if not os.path.exists("data/items.txt"):
+            try:
+                with open("data/items.txt", "w") as file:
+                    file.write("ITEM_ID:Iron_Sword\n")
+                    file.write("NAME:Iron Sword\n")
+                    file.write("TYPE:weapon\n")
+                    file.write("EFFECT:attack:5\n")
+                    file.write("COST:100\n")
+                    file.write("DESCRIPTION:A basic iron sword.\n")
+            
+            except Exception:
+                raise CorruptedDataError("Cannot create items.txt.")
+
+
     # TODO: Implement this function
     # Create data/ directory if it doesn't exist
     # Create default quests.txt and items.txt files
     # Handle any file permission errors appropriately
-    pass
+    
 
 # ============================================================================
 # HELPER FUNCTIONS
@@ -174,11 +242,36 @@ def parse_quest_block(lines):
     Returns: Dictionary with quest data
     Raises: InvalidDataFormatError if parsing fails
     """
+    # A new quest dictionary is created 
+    quest = {}
+
+    for line in lines:
+        if ":" not in line:
+            raise InvalidDataFormatError(f"Quest dosent have : in lines")
+        
+        key, value = line.split(":", 1)
+        
+        key = key.strip().lower()
+        value = value.strip()
+
+        quest[key] = value
+
+    try:
+        quest["reward_xp"] = int(quest["reward_xp"])
+        quest["reward_gold"] = int(quest["reward_gold"])
+        quest["required_level"] = int(quest["required_level"])
+    except Exception:
+        raise InvalidDataFormatError("Quest fields must be intergers.")
+    return quest
+        
+
+
+
     # TODO: Implement parsing logic
     # Split each line on ": " to get key-value pairs
     # Convert numeric strings to integers
     # Handle parsing errors gracefully
-    pass
+    
 
 def parse_item_block(lines):
     """
@@ -190,8 +283,29 @@ def parse_item_block(lines):
     Returns: Dictionary with item data
     Raises: InvalidDataFormatError if parsing fails
     """
+    item = {}
+
+    for line in lines:
+        if ":" not in line:
+            raise InvalidDataFormatError(f"Item dosent have : in lines")
+        
+        key, value = line.split(":", 1)
+        
+        key = key.strip().lower()
+        value = value.strip()
+
+        item[key] = value
+
+    try:
+        item["cost"] = int(item["cost"])
+    except Exception:
+        raise InvalidDataFormatError("Item cost must be an integer.")
+    
+    
+    return item
+
     # TODO: Implement parsing logic
-    pass
+    
 
 # ============================================================================
 # TESTING
