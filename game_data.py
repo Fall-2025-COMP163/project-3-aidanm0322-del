@@ -58,12 +58,12 @@ def load_quests(filename="data/quests.txt"):
         else:
             current_block.append(Line)
 
-        if current_block:
-            quest_data = parse_quest_block(current_block)
-            quest_id = quest_data["quest_id"]
-            quest[quest_id] = quest_data
+    if current_block:
+        quest_data = parse_quest_block(current_block)
+        quest_id = quest_data["quest_id"]
+        quest[quest_id] = quest_data
         
-        return quest 
+    return quest 
 
     # TODO: Implement this function
     # Must handle:
@@ -208,18 +208,18 @@ def create_default_data_files():
         except Exception:
             raise CorruptedDataError("Cannot create quests.txt.")
         
-        if not os.path.exists("data/items.txt"):
-            try:
-                with open("data/items.txt", "w") as file:
-                    file.write("ITEM_ID:Iron_Sword\n")
-                    file.write("NAME:Iron Sword\n")
-                    file.write("TYPE:weapon\n")
-                    file.write("EFFECT:attack:5\n")
-                    file.write("COST:100\n")
-                    file.write("DESCRIPTION:A basic iron sword.\n")
+    if not os.path.exists("data/items.txt"):
+        try:
+            with open("data/items.txt", "w") as file:
+                file.write("ITEM_ID:Iron_Sword\n")
+                file.write("NAME:Iron Sword\n")
+                file.write("TYPE:weapon\n")
+                file.write("EFFECT:attack:5\n")
+                file.write("COST:100\n")
+                file.write("DESCRIPTION:A basic iron sword.\n")
             
-            except Exception:
-                raise CorruptedDataError("Cannot create items.txt.")
+        except Exception:
+            raise CorruptedDataError("Cannot create items.txt.")
 
 
     # TODO: Implement this function
@@ -261,7 +261,7 @@ def parse_quest_block(lines):
         quest["reward_gold"] = int(quest["reward_gold"])
         quest["required_level"] = int(quest["required_level"])
     except Exception:
-        raise InvalidDataFormatError("Quest fields must be intergers.")
+        raise InvalidDataFormatError("Quest fields must be integers.")
     return quest
         
 
