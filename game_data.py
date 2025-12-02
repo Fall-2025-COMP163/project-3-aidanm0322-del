@@ -308,7 +308,9 @@ def parse_item_block(lines):
             except ValueError:
                 raise InvalidDataFormatError("Effect value must be an integer")
             
-            item[stat] = stat_val
+           
+            item[key] = {stat: stat_val}
+        
         elif key == "cost":
             try:
                 item[key] = int(value)
