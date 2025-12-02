@@ -9,7 +9,7 @@ AI Usage: [Document any AI assistance used]
 This module handles quest management, dependencies, and completion.
 """
 
-from custom_exceptions import ( 
+from custom_exceptions import (
     QuestNotFoundError,
     QuestRequirementsNotMetError,
     QuestAlreadyCompletedError,
@@ -103,24 +103,28 @@ def complete_quest(character, quest_id, quest_data_dict):
         QuestNotFoundError if quest_id not in quest_data_dict
         QuestNotActiveError if quest not in active_quests
     """
+    #Check if the quest exists
     if quest_id not in quest_data_dict:
         raise QuestNotFoundError(f"Quest ID '{quest_id}' not found.")
     
-
-    character.setdefault('active_quests', [])
-    character.setdefault('completed_quests', [])
-
-    character["active_quests"].remove(quest_id)
-    if quest_id not in character["completed_quests"]:
+    #Ensure character has the necessary lists
+    character.setdefault("active_quests", [])
+    character.setdefault("completed_quests", [])
+    
+    #Check if the quest is active
+    if quest_id not in character.get("active_quests", []):
         raise QuestNotActiveError(f"Quest '{quest_id}' is not active.")
+    
+    character["active_quests"].remove(quest_id)
     
     quest = quest_data_dict[quest_id]
 
     #Add quest to completed quests. 
-    character["active_quests"].remove(quest_id)
+    
     if quest_id not in character["completed_quests"]:
         character["completed_quests"].append(quest_id)
-
+   
+    #Grant rewards
     xp = int(quest.get("reward_xp", 0))
     gold = int(quest.get("reward_gold", 0))
 
