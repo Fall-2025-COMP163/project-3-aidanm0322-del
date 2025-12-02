@@ -188,10 +188,12 @@ def equip_weapon(character, item_id, item_data):
     
     
     if "equipped_weapon" in character and character["equipped_weapon"]:
-        old_weapon = character["equipped_weapon"]
-        old_stat, old_value = parse_item_effect(old_weapon["effect"])
+        old_weapon_id = character["equipped_weapon"]
+        
+        old_weapon_data = item_data
+        old_stat, old_value = parse_item_effect(old_weapon_data["effect"])
         character[old_stat] -= old_value
-        character["inventory"].append(old_weapon)
+        character["inventory"].append(old_weapon_id)
     
     character["equipped_weapon"] = item_data
     character[stat] += value
