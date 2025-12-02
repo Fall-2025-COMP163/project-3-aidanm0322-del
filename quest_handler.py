@@ -109,6 +109,10 @@ def complete_quest(character, quest_id, quest_data_dict):
     
     quest = quest_data_dict[quest_id]
 
+    if quest_id not in character.get("active_quests", []):
+        raise QuestNotActiveError(f"Quest '{quest_id}' is not active.")
+
+
     #Ai helped me with this part due to struggling with it
     character["experience"] = character.get("experience", 0) + quest.get("reward_xp", 0)
     character["gold"] = character.get("gold", 0) + quest.get("reward_gold", 0)
