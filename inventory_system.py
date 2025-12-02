@@ -183,19 +183,22 @@ def equip_weapon(character, item_id, item_data):
         raise ItemNotFoundError("Item not found in inventory")
     if item_data["type"] != 'weapon':
         raise InvalidItemTypeError("Item is not a weapon")
+    
     stat, value = parse_item_effect(item_data["effect"])
-    item_dict = game_data.load_item_data()
-    if "equipped_weapon" in character:
-        equipped_dict = item_dict[character["equipped_weapon"]]
-        character[character["equipped_weapon"][0]] -= (equipped_dict["effect"])[1]
-        equipped_stat, equipped_value = equipped_dict["effect"].split(":")
-        equipped_value = int(equipped_value)
-        character[equipped_stat] -= equipped_value
-        unequip_weapon(character)
-    character["eqquipped_weapon"] = item_id
+    
+    
+    if "equipped_weapon" in character and character["equipped_weapon"]:
+        old_weapon = character["equipped_weapon"]
+        old_stat, old_value = parse_item_effect(old_weapon["effect"])
+        character[old_stat] -= old_value
+        character["inventory"].append(old_weapon)
+    
+    character["equipped_weapon"] = item_data
     character[stat] += value
     character["inventory"].remove(item_id)
+
     return "Weapon equipped successfully"
+
 
     # TODO: Implement weapon equipping
     # Check item exists and is type 'weapon'
