@@ -201,7 +201,7 @@ def validate_item_data(item_dict):
     for stat, value in effect.items():
         if not isinstance(value, int):
             raise InvalidDataFormatError("Effect value must be an integer")
-
+    return True 
 
 def create_default_data_files():
     """
