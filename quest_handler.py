@@ -109,9 +109,10 @@ def complete_quest(character, quest_id, quest_data_dict):
     
     quest = quest_data_dict[quest_id]
 
-    character["experience"] += quest.get("reward_xp", 0)
+    #Ai helped me with this part due to struggling with it
+    character["experience"] = character.get("experience", 0) + quest.get("reward_xp", 0)
+    character["gold"] = character.get("gold", 0) + quest.get("reward_gold", 0)
 
-    character["gold"] += quest.get("reward_gold", 0)
 
 
     character["active_quests"].remove(quest_id)
