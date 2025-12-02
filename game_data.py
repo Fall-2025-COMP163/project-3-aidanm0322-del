@@ -285,40 +285,36 @@ def parse_item_block(lines):
     """
     item = {}
     #Checking for dict format and splitting on :
-
-    for line in lines:
-        if ":" not in line:
-            raise InvalidDataFormatError(f"Item dosent have : in lines")
+    try:
+        for line in lines:
+            if ":" not in line:
+                raise InvalidDataFormatError(f"Item dosent have : in lines")
             
 
-        key, value = line.split(":", 1)
-        key = key.strip().lower()
-        value = value.strip()
+            key, value = line.split(":", 1)
+            key = key.strip().lower()
+            value = value.strip()
 
-        if key == "effect":
-            if ":" not in value:
-                raise InvalidDataFormatError("Effect field must be in the format stat_name:value")
-            
-            stat, stat_val = value.split(":", 1)
-            stat = stat.strip()
-            stat_val = stat_val.strip()
+            if key == "item_id":
+                item["item_id"] = value
+            elif key == "name":
+                item["name"] = value
+            elif key == "type":
+                item["type"] = value
+            elif key == "effect":
 
-            try:
-                stat_val = int(stat_val)
-            except ValueError:
-                raise InvalidDataFormatError("Effect value must be an integer")
-            
-           
-            item[key] = {stat: stat_val}
-        
-        elif key == "cost":
-            try:
-                item[key] = int(value)
-            except ValueError:
-                raise InvalidDataFormatError("Cost value must be an integer")
-        else:
-            item[key] = value
-    
+                stat, amount = value.split(":", 1)
+                item["effect"] = {f"{stat}: int({amount})"}
+            elif key == "cost":
+                item["cost"] = int(value)
+            elif key == "description":
+                item["description"] = value
+            else:
+                raise InvalidDataFormatError(f"Unknown item field: {key}")
+    except ValueError:
+        raise InvalidDataFormatError("Item fields have invalid format.")
+    except Exception as e:
+        raise InvalidDataFormatError(f"Error parsing item: {e}")
     return item
         
 # ============================================================================
