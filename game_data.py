@@ -310,7 +310,7 @@ def parse_item_block(lines):
             elif key == "effect":
 
                 stat, amount = value.split(":", 1)
-                stat = stat.strip()
+                stat = stat.strip().lower()
                 amount = int(amount.strip())
                 item["effect"] = {stat: amount}
 
