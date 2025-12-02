@@ -179,11 +179,17 @@ def validate_item_data(item_dict):
     if not isinstance(item_dict["cost"], int):
         raise InvalidDataFormatError("Field cost must be an integer")   
     
-    # Effect has to be in the correct format stat_name:value
-    if ":" not in item_dict["effect"]:
-        raise InvalidDataFormatError("Field effect must be in the format stat_name:value")
-
-    return True
+    #Used Ai Assistant to help with this part
+    #Effect has to be a dictionary with one stat and integer value
+    effect = item_dict.get("effect")
+    if not isinstance(effect, dict):
+        raise InvalidDataFormatError("Effect must be a dictionary with one stat.")
+    for stat, value in effect.items():
+        if not isinstance(value, int):
+            raise InvalidDataFormatError(f"Effect value for {stat} must be an integer.")
+    
+    return True 
+   
 
 
 def create_default_data_files():
@@ -295,22 +301,22 @@ def parse_item_block(lines):
             key = key.strip().lower()
             value = value.strip()
 
-            if key == "ITEM_ID":
+            if key == "item_id":
                 item["item_id"] = value
-            elif key == "NAME":
+            elif key == "name":
                 item["name"] = value
-            elif key == "TYPE":
+            elif key == "type":
                 item["type"] = value
-            elif key == "EFFECT":
+            elif key == "effect":
 
                 stat, amount = value.split(":", 1)
                 stat = stat.strip()
                 amount = int(amount.strip())
-                item[stat] = amount 
+                item["effect"] = {stat: amount}
 
-            elif key == "COST":
+            elif key == "cost":
                 item["cost"] = int(value)
-            elif key == "DESCRIPTION":
+            elif key == "description":
                 item["description"] = value
             else:
                 raise InvalidDataFormatError(f"Unknown item field: {key}")
