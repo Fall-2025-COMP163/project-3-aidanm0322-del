@@ -142,14 +142,14 @@ def use_item(character, item_id, item_data):
         ItemNotFoundError if item not in inventory
         InvalidItemTypeError if item type is not 'consumable'
     """
-    if item_id not in character['inventory']:
+    if item_id not in character["inventory"]:
         raise ItemNotFoundError("Item not found in inventory")
-    else:
-        pass
-    stat, value = parse_item_effect(item_data['effect'])
+    if item_data["type"] != 'consumable':
+        raise InvalidItemTypeError("Item is not consumable")
+    stat, value = parse_item_effect(item_data["effect"])
     apply_stat_effect(character, stat, value)
-    character['inventory'].remove(item_id)
-    return "Consumable took effect"
+    character["inventory"].remove(item_id)
+    return "Consumable took effect successfully"
 
     # TODO: Implement item usage
     # Check if character has the item
