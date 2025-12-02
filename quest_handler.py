@@ -107,33 +107,17 @@ def complete_quest(character, quest_id, quest_data_dict):
     if quest_id not in quest_data_dict:
         raise QuestNotFoundError(f"Quest ID '{quest_id}' not found.")
     
-    #Ensure character has the necessary lists
-    character.setdefault("active_quests", [])
-    character.setdefault("completed_quests", [])
-    
-    #Check if the quest is active
-    if quest_id not in character.get("active_quests", []):
-        raise QuestNotActiveError(f"Quest '{quest_id}' is not active.")
-    
-    character["active_quests"].remove(quest_id)
-    
     quest = quest_data_dict[quest_id]
 
-    #Add quest to completed quests. 
-    
-    if quest_id not in character["completed_quests"]:
-        character["completed_quests"].append(quest_id)
-   
-    #Grant rewards
-    xp = int(quest.get("reward_xp", 0))
-    gold = int(quest.get("reward_gold", 0))
+    character["experience"] += quest.get("reward_xp", 0)
 
-    try:
-        character_manager.gain_experience(character, xp)
-    except Exception:
-        character["gold"] = character.get("gold", 0) + gold
+    character["gold"] += quest.get("reward_gold", 0)
 
-    return {"reward_xp": xp,"reward_gold": gold}
+
+    character["active_quests"].remove(quest_id)
+    character["completed_quests"].append(quest_id)
+
+    return f"Completed Quest '{quest_id}' successfully"
         
 
 
