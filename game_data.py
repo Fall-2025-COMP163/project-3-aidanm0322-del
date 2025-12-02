@@ -296,21 +296,21 @@ def parse_item_block(lines):
         value = value.strip()
 
         if key == "effect":
-
             if ":" not in value:
                 raise InvalidDataFormatError("Effect field must be in the format stat_name:value")
             
-        stat, stat_val = value.split(":", 1)
-        stat = stat.strip()
-        stat_val = stat_val.strip()
+            stat, stat_val = value.split(":", 1)
+            stat = stat.strip()
+            stat_val = stat_val.strip()
 
-        try:
-            stat_val = int(stat_val)
-        except ValueError:
-            raise InvalidDataFormatError("Effect value must be an integer")
+            try:
+                stat_val = int(stat_val)
+            except ValueError:
+                raise InvalidDataFormatError("Effect value must be an integer")
             
-        item[key] = {stat: stat_val}
-
+            item[key] = {stat: stat_val}
+        else:
+            item[key] = value
 
     try:
         item["cost"] = int(item["cost"])
