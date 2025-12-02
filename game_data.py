@@ -284,33 +284,42 @@ def parse_item_block(lines):
     Raises: InvalidDataFormatError if parsing fails
     """
     item = {}
+    #Checking for dict format and splitting on :
+
+    for line in lines:
+        if ":" not in line:
+            raise InvalidDataFormatError(f"Item dosent have : in lines")
+            
+
+        key, value = line.split(":", 1)
+        key = key.strip().lower()
+        value = value.strip()
+
+        if key == "effect":
+
+            if ":" not in value:
+                raise InvalidDataFormatError("Effect field must be in the format stat_name:value")
+            
+        stat, stat_val = value.split(":", 1)
+        stat = stat.strip()
+        stat_val = stat_val.strip()
+
+        try:
+            stat_val = int(stat_val)
+        except ValueError:
+            raise InvalidDataFormatError("Effect value must be an integer")
+            
+        item[key] = {stat: stat_val}
+
+
     try:
-        for line in lines:
-            if ":" not in line:
-                raise InvalidDataFormatError(f"Item dosent have : in lines")
-            key, value = line.split(":", 1)
-            key = key.strip().lower()
-            value = value.strip()
-
-            if key == "cost":
-                item[key] = int(value)
-            else:
-                item[key] = value
-    
-        if "item_id" not in item:
-            raise InvalidDataFormatError("Item missing item_id field.")
+        item["cost"] = int(item["cost"])
+    except Exception:
+        raise InvalidDataFormatError("Item cost must be an integer")
         
-        validate_item_data(item)
+    return item
 
-        return item
-    
-    except ValueError:
-        raise InvalidDataFormatError("Item fields must be integers where applicable.")
-    except Exception as e:
-        raise InvalidDataFormatError(f"Error parsing item: {e}")
         
-
-
 # ============================================================================
 # TESTING
 # ============================================================================
