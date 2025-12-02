@@ -9,7 +9,7 @@ AI Usage: [Document any AI assistance used]
 This module handles quest management, dependencies, and completion.
 """
 
-from custom_exceptions import (
+from custom_exceptions import ( 
     QuestNotFoundError,
     QuestRequirementsNotMetError,
     QuestAlreadyCompletedError,
