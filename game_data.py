@@ -295,19 +295,22 @@ def parse_item_block(lines):
             key = key.strip().lower()
             value = value.strip()
 
-            if key == "item_id":
+            if key == "ITEM_ID":
                 item["item_id"] = value
-            elif key == "name":
+            elif key == "NAME":
                 item["name"] = value
-            elif key == "type":
+            elif key == "TYPE":
                 item["type"] = value
-            elif key == "effect":
+            elif key == "EFFECT":
 
                 stat, amount = value.split(":", 1)
-                item["effect"] = {f"{stat}: int({amount})"}
-            elif key == "cost":
+                stat = stat.strip()
+                amount = int(amount.strip())
+                item[stat] = amount 
+
+            elif key == "COST":
                 item["cost"] = int(value)
-            elif key == "description":
+            elif key == "DESCRIPTION":
                 item["description"] = value
             else:
                 raise InvalidDataFormatError(f"Unknown item field: {key}")
