@@ -23,11 +23,6 @@ MAX_INVENTORY_SIZE = 20
 # INVENTORY MANAGEMENT
 # ============================================================================
 
-
-
-
-
-
 def add_item_to_inventory(character, item_id):
     """
     Add an item to character's inventory
@@ -189,13 +184,10 @@ def equip_weapon(character, item_id, item_data):
     
     if "equipped_weapon" in character and character["equipped_weapon"]:
         old_weapon_id = character["equipped_weapon"]
-        
-        old_weapon_data = item_data
-        old_stat, old_value = parse_item_effect(old_weapon_data["effect"])
-        character[old_stat] -= old_value
         character["inventory"].append(old_weapon_id)
+        
     
-    character["equipped_weapon"] = item_data
+    character["equipped_weapon"] = item_id
     character[stat] += value
     character["inventory"].remove(item_id)
 
